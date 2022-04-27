@@ -5,14 +5,15 @@ virus_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\Virus.fa
 gen_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\gen.fasta"
 
 
-def result_print(pattern_matches, successful_shift, name, pattern):
+def result_print(pattern_matches, successful_shift, name, pattern, exec_time):
     print('\n', name, '\n Pattern:', pattern, '\n matches:', pattern_matches,
           '\n Shifts:', successful_shift,
-          '\n', )
+          '\n time needed:', "%.2f" % exec_time, 'ms')
 
 
 def rabin(text, pattern):
-    name = "RabinKarpAlgorithmus"
+    start = time.process_time()
+    name = "RabinKarpAlgorithm"
     pattern_matches = 0
     d = 256
     p = 0  # hash value for pattern
@@ -50,11 +51,13 @@ def rabin(text, pattern):
             if t < 0:
                 t = t + q
 
-    result_print(pattern_matches, successful_shift, name, pattern)
+    exec_time = time.process_time() - start
+
+    result_print(pattern_matches, successful_shift, name, pattern, exec_time)
 
 
 def naive(text, pattern):
-    start = time.time()
+    start = time.process_time()
     name = "NaivePatternMatcher"
     successful_shift = []
     pattern_matches = 0
@@ -71,22 +74,22 @@ def naive(text, pattern):
                 pattern_matches += 1
                 successful_shift.append(s)
                 break
-    end = time.time()
-    exec_time = end - start
-    print(exec_time)
-    result_print(pattern_matches, successful_shift, name, pattern)
+
+    exec_time = time.process_time() - start
+
+    result_print(pattern_matches, successful_shift, name, pattern, exec_time)
 
 
 def compute_prefix(pattern):
     # Longest Proper Prefix that is suffix array
-    M = len(pattern)
-    pi = [0] * M
+    m = len(pattern)
+    pi = [0] * m
 
     k = 0
-    for i in range(1, M):
+    for i in range(1, m):
 
         while k > 0 and pattern[k + 1] != pattern[i]:
-            k = pi[k]
+            k = pi[k - 1]
 
         if pattern[k + 1] == pattern[i]:
             k += 1
@@ -96,39 +99,63 @@ def compute_prefix(pattern):
 
 
 def knuth(text, pattern):
-    name = "knuth morris"
+    start = time.process_time()
+    name = "KnuthMorrisAlgorithm"
+    successful_shift = []  # array of successful shifts
+    pattern_matches = 0  # pattern match counter
+    n = len(text)  # length of text
+    m = len(pattern)  # length of pattern
+    pi = compute_prefix(pattern)
+    q = 0  # count of similarities
+    for i in range(1, n):
+        while q > 0 and pattern[q] != text[i]:
+            q = pi[q - 1]  # if it is not equal => jump
+        if pattern[q] == text[i]:
+            q += 1  # if equal => compare next sign
+        if q == m:  # successful => next match
+            successful_shift.append(i + 1)
+            pattern_matches += 1
+            q = pi[q - 1]
+    exec_time = time.process_time() - start
+
+    result_print(pattern_matches, successful_shift, name, pattern, exec_time)
+
+
+def last_occurence(pattern, m, num_chars):
+    return 1
+
+
+def good_suffix(pattern, m):
+    pi = compute_prefix(pattern)
+    reverse_pattern = ''
+    for i in range(1, len(pattern) + 1):
+        reverse_pattern += pattern[-i]
+    pi_reverse = compute_prefix(reverse_pattern)
+
+
+def boyer(text, pattern):
+    name = 'BoyerMooreAlgorithm'
+    num_chars = 256
     successful_shift = []
-    pattern_matches = 0
+    pattern_match = 0
+
     n = len(text)
     m = len(pattern)
-    pi = compute_prefix(pattern)
-    q = 0
-    for i in range(1, n):
-        while q > 0 and pattern[q + 1] != text[i]:
-            q = pi[q]
-        if pattern[q + 1] == text[i]:
-            q += 1
-        if q == m:
-            successful_shift.append(i)
-            pattern_matches += 1
-            q = pi[q]
-        print(i)
-    print(pattern_matches)
-    result_print(pattern_matches, successful_shift, name, pattern)
+    o = last_occurence(pattern, m, num_chars)
 
 
 def fasta_reader(fasta_name):
     deflines = []
     sequences = ''
     f = open(fasta_name)
-    morelines = True
-    while morelines:
+    bool_flag = True
+    while bool_flag:
         seq = ""
         moreseq = True
         while moreseq:
             nxtline = f.readline()
             if not nxtline:
-                morelines = False
+                bool_flag = False
                 break
             elif nxtline[0] != ">":
                 seq += nxtline.strip()
@@ -145,7 +172,7 @@ def main():
 
     pattern = input('Pattern:')
     f_user = int(input("text.fasta = 1\nvirus.fasta = 2\ngen.fasta = 3\n"))
-    algo_user = input("naive = 1 \nrabin karp = 2\nknuthmorris = 3\n")
+    algo_user = input("naive = 1 \nrabin karp = 2\nknuth morris = 3\n")
 
     match f_user, algo_user:
         case 1, '1':
