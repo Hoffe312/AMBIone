@@ -1,13 +1,17 @@
 import time
 
+text_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\text.fasta"
+virus_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\Virus.fasta"
+gen_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\gen.fasta"
+
 
 def result_print(pattern_matches, successful_shift, name, pattern):
-    print('Die Funktion', name, 'hat', pattern_matches, 'Matches an den Stellen:', successful_shift,
-          'mit dem Muster:', pattern)
+    print('\n', name, '\n Pattern:', pattern, '\n matches:', pattern_matches,
+          '\n Shifts:', successful_shift,
+          '\n', )
 
 
 def rabin(text, pattern):
-    start = time.time()
     name = "RabinKarpAlgorithmus"
     pattern_matches = 0
     d = 256
@@ -45,9 +49,7 @@ def rabin(text, pattern):
             t = (d * (t - ord(text[s]) * h) + ord(text[s + len(pattern)])) % q
             if t < 0:
                 t = t + q
-    end = time.time()
-    exec_time = end - start
-    print(exec_time)
+
     result_print(pattern_matches, successful_shift, name, pattern)
 
 
@@ -75,6 +77,46 @@ def naive(text, pattern):
     result_print(pattern_matches, successful_shift, name, pattern)
 
 
+def compute_prefix(pattern):
+    # Longest Proper Prefix that is suffix array
+    M = len(pattern)
+    pi = [0] * M
+
+    k = 0
+    for i in range(1, M):
+
+        while k > 0 and pattern[k + 1] != pattern[i]:
+            k = pi[k]
+
+        if pattern[k + 1] == pattern[i]:
+            k += 1
+            pi[i] = k
+
+    return pi
+
+
+def knuth(text, pattern):
+    name = "knuth morris"
+    successful_shift = []
+    pattern_matches = 0
+    n = len(text)
+    m = len(pattern)
+    pi = compute_prefix(pattern)
+    q = 0
+    for i in range(1, n):
+        while q > 0 and pattern[q + 1] != text[i]:
+            q = pi[q]
+        if pattern[q + 1] == text[i]:
+            q += 1
+        if q == m:
+            successful_shift.append(i)
+            pattern_matches += 1
+            q = pi[q]
+        print(i)
+    print(pattern_matches)
+    result_print(pattern_matches, successful_shift, name, pattern)
+
+
 def fasta_reader(fasta_name):
     deflines = []
     sequences = ''
@@ -99,13 +141,40 @@ def fasta_reader(fasta_name):
 
 
 def main():
-    text_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\text.fasta"
-    virus_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\Virus.fasta"
-    gen_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\gen.fasta"
+    path_arr = [text_fasta, virus_fasta, gen_fasta]
+
     pattern = input('Pattern:')
-    fh = fasta_reader(text_fasta)
-    rabin(fh, pattern)
-    naive(fh, pattern)
+    f_user = int(input("text.fasta = 1\nvirus.fasta = 2\ngen.fasta = 3\n"))
+    algo_user = input("naive = 1 \nrabin karp = 2\nknuthmorris = 3\n")
+
+    match f_user, algo_user:
+        case 1, '1':
+            fh = fasta_reader(path_arr[0])
+            naive(fh, pattern)
+        case 1, '2':
+            fh = fasta_reader(path_arr[0])
+            rabin(fh, pattern)
+        case 1, '3':
+            fh = fasta_reader(path_arr[0])
+            knuth(fh, pattern)
+        case 2, '1':
+            fh = fasta_reader(path_arr[1])
+            naive(fh, pattern)
+        case 2, '2':
+            fh = fasta_reader(path_arr[1])
+            rabin(fh, pattern)
+        case 2, '3':
+            fh = fasta_reader(path_arr[1])
+            knuth(fh, pattern)
+        case 3, '1':
+            fh = fasta_reader(path_arr[2])
+            naive(fh, pattern)
+        case 3, '2':
+            fh = fasta_reader(path_arr[2])
+            rabin(fh, pattern)
+        case 3, '3':
+            fh = fasta_reader(path_arr[2])
+            knuth(fh, pattern)
 
 
 if __name__ == '__main__':
