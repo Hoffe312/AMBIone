@@ -1,4 +1,4 @@
-import time
+from timeit import default_timer as time
 
 text_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\text.fasta"
 virus_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\Virus.fasta"
@@ -8,11 +8,11 @@ gen_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\gen.fasta"
 def result_print(pattern_matches, successful_shift, name, pattern, exec_time):
     print('\n', name, '\n Pattern:', pattern, '\n matches:', pattern_matches,
           '\n Shifts:', successful_shift,
-          '\n time needed:', "%.2f" % exec_time, 'ms')
+          '\n time needed:',  exec_time, 'ms')
 
 
 def rabin(text, pattern):
-    start = time.process_time()
+    start = time()
     name = "RabinKarpAlgorithm"
     pattern_matches = 0
     d = 256
@@ -51,13 +51,13 @@ def rabin(text, pattern):
             if t < 0:
                 t = t + q
 
-    exec_time = time.process_time() - start
+    exec_time = time() - start
 
     result_print(pattern_matches, successful_shift, name, pattern, exec_time)
 
 
 def naive(text, pattern):
-    start = time.process_time()
+    start = time()
     name = "NaivePatternMatcher"
     successful_shift = []
     pattern_matches = 0
@@ -75,7 +75,7 @@ def naive(text, pattern):
                 successful_shift.append(s)
                 break
 
-    exec_time = time.process_time() - start
+    exec_time = time() - start
 
     result_print(pattern_matches, successful_shift, name, pattern, exec_time)
 
@@ -99,7 +99,7 @@ def compute_prefix(pattern):
 
 
 def knuth(text, pattern):
-    start = time.process_time()
+    start = time()
     name = "KnuthMorrisAlgorithm"
     successful_shift = []  # array of successful shifts
     pattern_matches = 0  # pattern match counter
@@ -116,7 +116,7 @@ def knuth(text, pattern):
             successful_shift.append(i + 1)
             pattern_matches += 1
             q = pi[q - 1]
-    exec_time = time.process_time() - start
+    exec_time = time() - start
 
     result_print(pattern_matches, successful_shift, name, pattern, exec_time)
 
