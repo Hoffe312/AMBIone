@@ -182,7 +182,7 @@ def knuth(text, pattern):
             successful_shift.append(i + 1)
             pattern_matches += 1
             q = pi[q - 1]
-            steps += 1
+
     exec_time = time() - start
 
     result_print(pattern_matches, successful_shift, name, pattern, exec_time, steps)
