@@ -12,6 +12,82 @@ def result_print(pattern_matches, successful_shift, name, pattern, exec_time):
           '\n time needed:', exec_time, 's')
 
 
+def fasta_reader(fasta_name):
+    deflines = []
+    sequences = ''
+    f = open(fasta_name)
+    bool_flag = True
+    while bool_flag:
+        seq = ""
+        moreseq = True
+        while moreseq:
+            nxtline = f.readline()
+            if not nxtline:
+                bool_flag = False
+                break
+            elif nxtline[0] != ">":
+                seq += nxtline.strip()
+            else:
+                deflines.append(nxtline.strip())
+                moreseq = False
+    sequences += seq
+
+    return sequences
+
+
+def match_options(algo_user, pattern, choice):  # if fasta is used
+    fasta_input = text_fasta
+    if choice == 'n':
+        match algo_user:
+            case '1':
+                fh = fasta_reader(fasta_input)
+                naive(fh, pattern)
+            case '2':
+                fh = fasta_reader(fasta_input)
+                rabin(fh, pattern)
+            case '3':
+                fh = fasta_reader(fasta_input)
+                knuth(fh, pattern)
+            case '4':
+                fh = fasta_reader(fasta_input)
+                boyer(fh, pattern)
+    else:
+        text = input('Your Text:')
+        match algo_user:
+            case '1':
+                naive(text, pattern)
+            case '2':
+                rabin(text, pattern)
+            case '3':
+                knuth(text, pattern)
+            case '4':
+                boyer(text, pattern)
+
+
+def naive(text, pattern):
+    start = time()
+    name = "NaivePatternMatcher"
+    successful_shift = []
+    pattern_matches = 0
+    for s in range(len(text) - len(pattern)):
+        count = 0
+        j = 0
+        while True:
+            if text[s + j] == pattern[j] and j <= len(pattern):
+                j += 1
+                count += 1
+            else:
+                break
+            if count == len(pattern):
+                pattern_matches += 1
+                successful_shift.append(s)
+                break
+
+    exec_time = time() - start
+
+    result_print(pattern_matches, successful_shift, name, pattern, exec_time)
+
+
 def rabin(text, pattern):
     q = int(input("Primzahl:"))  # modulo
     start = time()
@@ -51,30 +127,6 @@ def rabin(text, pattern):
             t = (d * (t - ord(text[s]) * h) + ord(text[s + len(pattern)])) % q
             if t < 0:
                 t = t + q
-
-    exec_time = time() - start
-
-    result_print(pattern_matches, successful_shift, name, pattern, exec_time)
-
-
-def naive(text, pattern):
-    start = time()
-    name = "NaivePatternMatcher"
-    successful_shift = []
-    pattern_matches = 0
-    for s in range(len(text) - len(pattern)):
-        count = 0
-        j = 0
-        while True:
-            if text[s + j] == pattern[j] and j <= len(pattern):
-                j += 1
-                count += 1
-            else:
-                break
-            if count == len(pattern):
-                pattern_matches += 1
-                successful_shift.append(s)
-                break
 
     exec_time = time() - start
 
@@ -122,82 +174,58 @@ def knuth(text, pattern):
     result_print(pattern_matches, successful_shift, name, pattern, exec_time)
 
 
-def last_occurence(pattern, m, num_chars):
-    pi = [0] * m
-    for j in range(m):
-        pi = j
+def last_occurence(pattern, m, text):
+    phi = {}
+    for b in text:
+        phi[b] = -1
+    for a in pattern:
+        last = pattern.rfind(a) + 1
+        phi[a] = last
+    return phi
 
 
-def good_suffix(pattern):
+def good_suffix(pattern, m):
+    gamma = [0] * m
     pi = compute_prefix(pattern)
-    reverse_pattern = ''
-    for i in range(1, len(pattern) + 1):
-        reverse_pattern += pattern[-i]
-    pi_reverse = compute_prefix(reverse_pattern)
-    print(pi_reverse)
+    pi_reverse = compute_prefix(pi[::-1])
+    for j in range(m):
+        gamma[j] = m - pi[m - 1]
+    for l in range(m):
+
+        j = m - pi_reverse[l] - 1
+        if gamma[j] > l - pi_reverse[l]:
+            gamma[j] = l + 1 - pi_reverse[l]
+    return gamma
 
 
 def boyer(text, pattern):
+    start = time()
     name = 'BoyerMooreAlgorithm'
-    num_chars = 256
     successful_shift = []
-    pattern_match = 0
+    pattern_matches = 0
 
     n = len(text)
     m = len(pattern)
-    o = last_occurence(pattern, m, num_chars)
-
-
-def fasta_reader(fasta_name):
-    deflines = []
-    sequences = ''
-    f = open(fasta_name)
-    bool_flag = True
-    while bool_flag:
-        seq = ""
-        moreseq = True
-        while moreseq:
-            nxtline = f.readline()
-            if not nxtline:
-                bool_flag = False
-                break
-            elif nxtline[0] != ">":
-                seq += nxtline.strip()
+    phi = last_occurence(pattern, m, text)
+    gamma = good_suffix(pattern, m)
+    s = 0
+    while s <= n - m:
+        j = m-1
+        while j >= 0 and pattern[j] == text[s+j]:
+            j = j - 1
+            print('s = ', s)
+            if j == -1:
+                successful_shift.append(s)
+                pattern_matches += 1
+                s = s + gamma[0]
+                print(gamma[0])
             else:
-                deflines.append(nxtline.strip())
-                moreseq = False
-    sequences += seq
+                x = text[s+j]
+                y = phi[x]
+                s = s + max(gamma[j], j - y)
 
-    return sequences
-
-
-def match_options(algo_user, pattern, choice):  # if fasta is used
-    fasta_input = text_fasta
-    if choice == 'n':
-        match  algo_user:
-            case '1':
-                fh = fasta_reader(fasta_input)
-                naive(fh, pattern)
-            case '2':
-                fh = fasta_reader(fasta_input)
-                rabin(fh, pattern)
-            case '3':
-                fh = fasta_reader(fasta_input)
-                knuth(fh, pattern)
-            case '4':
-                fh = fasta_reader(fasta_input)
-                boyer(fh, pattern)
-    else:
-        text = input('Your Text:')
-        match algo_user:
-            case '1':
-                naive(text, pattern)
-            case '2':
-                rabin(text, pattern)
-            case '3':
-                knuth(text, pattern)
-            case '4':
-                boyer(text, pattern)
+    exec_time = time() - start
+    result_print(pattern_matches, successful_shift, name, pattern, exec_time)
 
 
 def main():
@@ -209,4 +237,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    while True:
+        main()
