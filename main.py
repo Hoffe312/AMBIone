@@ -191,7 +191,6 @@ def good_suffix(pattern, m):
     for j in range(m):
         gamma[j] = m - pi[m - 1]
     for l in range(m):
-
         j = m - pi_reverse[l] - 1
         if gamma[j] > l - pi_reverse[l]:
             gamma[j] = l + 1 - pi_reverse[l]
@@ -213,16 +212,12 @@ def boyer(text, pattern):
         j = m-1
         while j >= 0 and pattern[j] == text[s+j]:
             j = j - 1
-            print('s = ', s)
-            if j == -1:
-                successful_shift.append(s)
-                pattern_matches += 1
-                s = s + gamma[0]
-                print(gamma[0])
-            else:
-                x = text[s+j]
-                y = phi[x]
-                s = s + max(gamma[j], j - y)
+        if j == -1:
+            successful_shift.append(s)
+            pattern_matches += 1
+            s = s + gamma[0]
+        else:
+            s = s + max(gamma[j], j - phi[text[s+j]])
 
     exec_time = time() - start
     result_print(pattern_matches, successful_shift, name, pattern, exec_time)
@@ -239,3 +234,4 @@ def main():
 if __name__ == '__main__':
     while True:
         main()
+        print('\nNew patternmatch:\n')
