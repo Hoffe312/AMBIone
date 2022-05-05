@@ -242,7 +242,12 @@ def boyer(text, pattern):
 
 
 def main():
-    pattern = input('Pattern:')
+    pattern_input = input('Pattern as a .fasta = 1 or own pattern = 2')
+    if pattern_input == '1':
+        pattern = input('Pattern.fasta:')
+        pattern = fasta_reader(pattern)
+    else:
+        pattern = input('Pattern:')
     algo_user = input('naive = 1 \nrabin karp = 2\nknuth morris = 3\nboyer moore = 4\n')
     text_choice = input('Own text = y  or fasta data = n :\n')
 
