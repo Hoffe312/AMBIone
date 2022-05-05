@@ -8,7 +8,7 @@ gen_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\gen.fasta"
 def result_print(pattern_matches, successful_shift, name, pattern, exec_time):
     print('\n', name, '\n Pattern:', pattern, '\n matches:', pattern_matches,
           '\n Shifts:', successful_shift,
-          '\n time needed:',  exec_time, 'ms')
+          '\n time needed:', exec_time, 's')
 
 
 def rabin(text, pattern):
@@ -122,15 +122,19 @@ def knuth(text, pattern):
 
 
 def last_occurence(pattern, m, num_chars):
-    return 1
+    pi = [0] * m
+    for j in range(m):
+        pi = j
 
 
-def good_suffix(pattern, m):
+
+def good_suffix(pattern):
     pi = compute_prefix(pattern)
     reverse_pattern = ''
     for i in range(1, len(pattern) + 1):
         reverse_pattern += pattern[-i]
     pi_reverse = compute_prefix(reverse_pattern)
+    print(pi_reverse)
 
 
 def boyer(text, pattern):
@@ -169,39 +173,49 @@ def fasta_reader(fasta_name):
 
 def main():
     path_arr = [text_fasta, virus_fasta, gen_fasta]
-
     pattern = input('Pattern:')
-    f_user = int(input("text.fasta = 1\nvirus.fasta = 2\ngen.fasta = 3\n"))
     algo_user = input("naive = 1 \nrabin karp = 2\nknuth morris = 3\n")
+    text_choice = input('Own text = y  or fasta data = n :\n')
+    if text_choice == 'n':
+        f_user = int(input("text.fasta = 1\nvirus.fasta = 2\ngen.fasta = 3\n"))
 
-    match f_user, algo_user:
-        case 1, '1':
-            fh = fasta_reader(path_arr[0])
-            naive(fh, pattern)
-        case 1, '2':
-            fh = fasta_reader(path_arr[0])
-            rabin(fh, pattern)
-        case 1, '3':
-            fh = fasta_reader(path_arr[0])
-            knuth(fh, pattern)
-        case 2, '1':
-            fh = fasta_reader(path_arr[1])
-            naive(fh, pattern)
-        case 2, '2':
-            fh = fasta_reader(path_arr[1])
-            rabin(fh, pattern)
-        case 2, '3':
-            fh = fasta_reader(path_arr[1])
-            knuth(fh, pattern)
-        case 3, '1':
-            fh = fasta_reader(path_arr[2])
-            naive(fh, pattern)
-        case 3, '2':
-            fh = fasta_reader(path_arr[2])
-            rabin(fh, pattern)
-        case 3, '3':
-            fh = fasta_reader(path_arr[2])
-            knuth(fh, pattern)
+        match f_user, algo_user:
+            case 1, '1':
+                fh = fasta_reader(path_arr[0])
+                naive(fh, pattern)
+            case 1, '2':
+                fh = fasta_reader(path_arr[0])
+                rabin(fh, pattern)
+            case 1, '3':
+                fh = fasta_reader(path_arr[0])
+                knuth(fh, pattern)
+            case 2, '1':
+                fh = fasta_reader(path_arr[1])
+                naive(fh, pattern)
+            case 2, '2':
+                fh = fasta_reader(path_arr[1])
+                rabin(fh, pattern)
+            case 2, '3':
+                fh = fasta_reader(path_arr[1])
+                knuth(fh, pattern)
+            case 3, '1':
+                fh = fasta_reader(path_arr[2])
+                naive(fh, pattern)
+            case 3, '2':
+                fh = fasta_reader(path_arr[2])
+                rabin(fh, pattern)
+            case 3, '3':
+                fh = fasta_reader(path_arr[2])
+                knuth(fh, pattern)
+    else:
+        text_user = input('Your Text:')
+        match algo_user:
+            case '1':
+                naive(text_user, pattern)
+            case '2':
+                rabin(text_user, pattern)
+            case '3':
+                knuth(text_user, pattern)
 
 
 if __name__ == '__main__':
