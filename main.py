@@ -179,7 +179,7 @@ def knuth(text, pattern):
             q += 1  # if equal => compare next sign
             steps += 1
         if q == m:  # successful => next match
-            successful_shift.append(i + 1)
+            successful_shift.append((i + 1)-m)
             pattern_matches += 1
             q = pi[q - 1]
 
