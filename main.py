@@ -232,7 +232,6 @@ def boyer(text, pattern):
             successful_shift.append(s)
             pattern_matches += 1
             s = s + gamma[0]
-            steps += 1
         else:
             s = s + max(gamma[j], j - phi[text[s+j]])
             steps += 1
