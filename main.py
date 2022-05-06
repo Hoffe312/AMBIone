@@ -9,7 +9,7 @@ fna_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\BA000002.f
 def result_print(pattern_matches, successful_shift, name, pattern, exec_time, steps):
     print('\n', name, '\n Pattern:', pattern, '\n matches:', pattern_matches,
           '\n Shifts:', successful_shift,
-          '\n time needed:', exec_time, 's\n steps needed:', steps)
+          '\n time needed:', exec_time, 's\n steps needed:', steps, '\n')
 
 
 def fasta_reader(fasta_name):
@@ -39,28 +39,28 @@ def match_options(algo_user, pattern, choice):  # if fasta is used
     fasta_input = text_fasta
     if choice == 'n':
         match algo_user:
-            case '1':
+            case 1:
                 fh = fasta_reader(fasta_input)
                 naive(fh, pattern)
-            case '2':
+            case 2:
                 fh = fasta_reader(fasta_input)
                 rabin(fh, pattern)
-            case '3':
+            case 3:
                 fh = fasta_reader(fasta_input)
                 knuth(fh, pattern)
-            case '4':
+            case 4:
                 fh = fasta_reader(fasta_input)
                 boyer(fh, pattern)
     else:
         text = input('Your Text:')
         match algo_user:
-            case '1':
+            case 1:
                 naive(text, pattern)
-            case '2':
+            case 2:
                 rabin(text, pattern)
-            case '3':
+            case 3:
                 knuth(text, pattern)
-            case '4':
+            case 4:
                 boyer(text, pattern)
 
 
@@ -137,7 +137,7 @@ def rabin(text, pattern):
             t = (d * (t - ord(text[s]) * h) + ord(text[s + m])) % q
             if t < 0:
                 t = t + q
-
+            steps += 1
     exec_time = time() - start
 
     result_print(pattern_matches, successful_shift, name, pattern, exec_time, steps)
@@ -149,14 +149,14 @@ def compute_prefix(pattern):
     pi = [0] * m
 
     k = 0
-    for i in range(1, m):
+    for i in range(2, m + 1):
 
-        while k > 0 and pattern[k + 1] != pattern[i]:
+        while k > 0 and pattern[k] != pattern[i - 1]:
             k = pi[k - 1]
 
-        if pattern[k + 1] == pattern[i]:
+        if pattern[k] == pattern[i - 1]:
             k += 1
-            pi[i] = k
+            pi[i - 1] = k
 
     return pi
 
@@ -171,7 +171,7 @@ def knuth(text, pattern):
     pi = compute_prefix(pattern)
     q = 0  # count of similarities
     steps = 0
-    for i in range(1, n):
+    for i in range(n):
         while q > 0 and pattern[q] != text[i]:
             q = pi[q - 1]  # if it is not equal => jump
             steps += 1
@@ -179,7 +179,7 @@ def knuth(text, pattern):
             q += 1  # if equal => compare next sign
             steps += 1
         if q == m:  # successful => next match
-            successful_shift.append((i + 1)-m)
+            successful_shift.append((i + 1) - m)
             pattern_matches += 1
             q = pi[q - 1]
 
@@ -188,7 +188,7 @@ def knuth(text, pattern):
     result_print(pattern_matches, successful_shift, name, pattern, exec_time, steps)
 
 
-def last_occurence(pattern, text):
+def last_occurrence(pattern, text):
     phi = {}
     for b in text:
         phi[b] = -1
@@ -219,13 +219,13 @@ def boyer(text, pattern):
 
     n = len(text)
     m = len(pattern)
-    phi = last_occurence(pattern, text)
+    phi = last_occurrence(pattern, text)
     gamma = good_suffix(pattern, m)
     s = 0
     steps = 0
     while s <= n - m:
-        j = m-1
-        while j >= 0 and pattern[j] == text[s+j]:
+        j = m - 1
+        while j >= 0 and pattern[j] == text[s + j]:
             j = j - 1
             steps += 1
         if j == -1:
@@ -233,7 +233,7 @@ def boyer(text, pattern):
             pattern_matches += 1
             s = s + gamma[0]
         else:
-            s = s + max(gamma[j], j - phi[text[s+j]])
+            s = s + max(gamma[j], j - phi[text[s + j]])
             steps += 1
 
     exec_time = time() - start
@@ -247,13 +247,12 @@ def main():
         pattern = fasta_reader(pattern)
     else:
         pattern = input('Pattern:')
-    algo_user = input('naive = 1 \nrabin karp = 2\nknuth morris = 3\nboyer moore = 4\n')
+    algo_user = int(input('naive = 1 \nrabin karp = 2\nknuth morris = 3\nboyer moore = 4\n'))
     text_choice = input('Own text = y  or fasta data = n :\n')
-
     match_options(algo_user, pattern, text_choice)
 
 
 if __name__ == '__main__':
     while True:
         main()
-        print('\nNew patternmatch:\n')
+        print('*'*20, 'FINISHED', '*'*20, '\n')
