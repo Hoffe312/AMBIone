@@ -1,58 +1,62 @@
 from timeit import default_timer as time
 
-text_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\text.fasta"
-virus_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\Virus.fasta"
-gen_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\gen.fasta"
-fna_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\BA000002.fna"
+__author__ = "7245710, Hoffmann - 7238099, Markmann "
+__credits__ = ""
+__email__ = "hoffe312@gmail.com - mmaxmarkmann@gmail.com"
 
 
+# Fasta paths for testing only
+#  text_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\text.fasta"
+#  virus_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\Virus.fasta"
+#  gen_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\gen.fasta"
+#  fna_fasta = "C:\\Users\\felix\\Downloads\\AMBIPrak\\Praktikum_1_Data\\BA000002.fna"
+
+
+# prints all results in formatted matter
 def result_print(pattern_matches, successful_shift, name, pattern, exec_time, steps):
-    print('\n', name, '\n Pattern:', pattern, '\n matches:', pattern_matches,
-          '\n Shifts:', successful_shift,
-          '\n time needed:', exec_time, 's\n steps needed:', steps, '\n')
+    print(f'\n {name}\n Pattern: {pattern}\n matches: {pattern_matches}\n Shifts: {successful_shift}\n time needed: '
+          f'{exec_time}s\n steps needed: {steps}\n')
 
 
 def fasta_reader(fasta_name):
-    deflines = []
     sequences = ''
-    f = open(fasta_name)
+    f = open(fasta_name, "r")  # read only
+    seq = ""
     bool_flag = True
     while bool_flag:
-        seq = ""
         moreseq = True
         while moreseq:
-            nxtline = f.readline()
-            if not nxtline:
+            nxtline = f.readline()  # if next line
+            if not nxtline:  # break clause
                 bool_flag = False
                 break
-            elif nxtline[0] != ">":
-                seq += nxtline.strip()
+            elif nxtline[0] != ">":  # while there is another line which is not the start of the fasta
+                seq += nxtline.strip()  # => append line to empty string
             else:
-                deflines.append(nxtline.strip())
-                moreseq = False
+                moreseq = False  # iterates one line further
     sequences += seq
 
     return sequences
 
 
-def match_options(algo_user, pattern, choice):  # if fasta is used
-    fasta_input = text_fasta
-    if choice == 'n':
+# matches user choices and hands them over to the pattern matcher of choice
+def match_options(algo_user, pattern, choice, fasta_text):
+    if choice == 'n':  # if fasta file from path
         match algo_user:
             case 1:
-                fh = fasta_reader(fasta_input)
+                fh = fasta_reader(fasta_text)
                 naive(fh, pattern)
             case 2:
-                fh = fasta_reader(fasta_input)
+                fh = fasta_reader(fasta_text)
                 rabin(fh, pattern)
             case 3:
-                fh = fasta_reader(fasta_input)
+                fh = fasta_reader(fasta_text)
                 knuth(fh, pattern)
             case 4:
-                fh = fasta_reader(fasta_input)
+                fh = fasta_reader(fasta_text)
                 boyer(fh, pattern)
-    else:
-        text = input('Your Text:')
+    else:  # own fasta file
+        text = input('Your Text: ')
         match algo_user:
             case 1:
                 naive(text, pattern)
@@ -65,7 +69,7 @@ def match_options(algo_user, pattern, choice):  # if fasta is used
 
 
 def naive(text, pattern):
-    start = time()
+    start = time()  # runtime variable
     name = "NaivePatternMatcher"
     successful_shift = []
     pattern_matches = 0
@@ -74,28 +78,28 @@ def naive(text, pattern):
     m = len(pattern)
 
     for s in range(n - m):
-        count = 0
+        count = 0  # counts the matches of pattern[j] and text [s+j]
         j = 0
         while True:
             if text[s + j] == pattern[j] and j <= m:
                 j += 1
                 count += 1
                 steps += 1
-            else:
+            else:  # iterate the text
                 steps += 1
                 break
-            if count == m:
+            if count == m:  # if match
                 pattern_matches += 1
                 successful_shift.append(s)
                 break
 
     exec_time = time() - start
 
-    result_print(pattern_matches, successful_shift, name, pattern, exec_time, steps)
+    result_print(pattern_matches, successful_shift, name, pattern, exec_time, steps)  # print function
 
 
 def rabin(text, pattern):
-    q = int(input("Primzahl:"))  # modulo
+    q = int(input("Primzahl: "))  # modulo
     start = time()
     name = "RabinKarpAlgorithm"
     pattern_matches = 0
@@ -119,7 +123,7 @@ def rabin(text, pattern):
         if p == t:
             j = 0
             count = 0
-            while True:
+            while True:  # while loop from naive pattern matcher
                 if text[s + j] == pattern[j] and j <= m:
                     j += 1
                     count += 1
@@ -131,8 +135,8 @@ def rabin(text, pattern):
                     pattern_matches += 1
                     successful_shift.append(s)
                     break
-            # Calculate hash value for next window of text: Remove
-            # leading digit, add trailing digit
+        # Calculate hash value for next window of text: Remove
+        # leading digit, add trailing digit
         if s < n - m:
             t = (d * (t - ord(text[s]) * h) + ord(text[s + m])) % q
             if t < 0:
@@ -144,6 +148,7 @@ def rabin(text, pattern):
 
 
 def compute_prefix(pattern):
+    """prefix algorithm as a part of the Knuth Morris Pratt algorithm"""
     # Longest Proper Prefix that is suffix array
     m = len(pattern)
     pi = [0] * m
@@ -189,6 +194,7 @@ def knuth(text, pattern):
 
 
 def last_occurrence(pattern, text):
+    """last occurence function as a part of the Boyer Moore algorithm"""
     phi = {}
     for b in text:
         phi[b] = -1
@@ -199,6 +205,7 @@ def last_occurrence(pattern, text):
 
 
 def good_suffix(pattern, m):
+    """good suffix function as a part of the Boyer Moore algorithm"""
     gamma = [0] * m
     pi = compute_prefix(pattern)
     pi_reverse = compute_prefix(pi[::-1])
@@ -241,18 +248,25 @@ def boyer(text, pattern):
 
 
 def main():
-    pattern_input = input('Pattern as a .fasta = 1 or own pattern = 2')
+    pattern_input = input('Pattern as a .fasta = 1 or own pattern = 2: ')
     if pattern_input == '1':
-        pattern = input('Pattern.fasta:')
+        pattern = input('Pattern.fasta: ')
         pattern = fasta_reader(pattern)
     else:
         pattern = input('Pattern:')
-    algo_user = int(input('naive = 1 \nrabin karp = 2\nknuth morris = 3\nboyer moore = 4\n'))
+    #  algo_user = int(input('naive = 1 \nrabin karp = 2\nknuth morris = 3\nboyer moore = 4 :\n'))
     text_choice = input('Own text = y  or fasta data = n :\n')
-    match_options(algo_user, pattern, text_choice)
+    fasta_input = input("Fasta path: ")
+    for algo_user in range(1, 5):
+        match_options(algo_user, pattern, text_choice, fasta_input)
 
 
 if __name__ == '__main__':
+    print("This program searches patterns in fasta files or own input text.\n"
+          "You have got the choice out of four different algorithms:\n"
+          "1.Naive Pattern Matcher, 2.Rabin Karp Algorithm, 3.Knuth Morris Pratt Algorithm, 4.Boyer Moore Algorithm\n"
+          "The program guides you through each step, but it needs a few user inputs like: "
+          "pattern (.fasta or typed string), text (.fasta or typed string) and your algorithm choice.")
     while True:
         main()
-        print('*'*20, 'FINISHED', '*'*20, '\n')
+        print('*' * 20, 'FINISHED', '*' * 20, '\n')
