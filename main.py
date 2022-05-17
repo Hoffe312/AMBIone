@@ -254,11 +254,10 @@ def main():
         pattern = fasta_reader(pattern)
     else:
         pattern = input('Pattern:')
-    #  algo_user = int(input('naive = 1 \nrabin karp = 2\nknuth morris = 3\nboyer moore = 4 :\n'))
+    algo_user = int(input('naive = 1 \nrabin karp = 2\nknuth morris = 3\nboyer moore = 4 :\n'))
     text_choice = input('Own text = y  or fasta data = n :\n')
     fasta_input = input("Fasta path: ")
-    for algo_user in range(1, 5):
-        match_options(algo_user, pattern, text_choice, fasta_input)
+    match_options(algo_user, pattern, text_choice, fasta_input)
 
 
 if __name__ == '__main__':
