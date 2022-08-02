@@ -77,7 +77,7 @@ def naive(text, pattern):
     n = len(text)
     m = len(pattern)
 
-    for s in range(n - m):
+    for s in range((n - m)+1):
         count = 0  # counts the matches of pattern[j] and text [s+j]
         j = 0
         while True:
@@ -208,7 +208,7 @@ def good_suffix(pattern, m):
     """good suffix function as a part of the Boyer Moore algorithm"""
     gamma = [0] * m
     pi = compute_prefix(pattern)
-    pi_reverse = compute_prefix(pi[::-1])
+    pi_reverse = compute_prefix(pattern[::-1])
     for j in range(m):
         gamma[j] = m - pi[m - 1]
     for l in range(m):
